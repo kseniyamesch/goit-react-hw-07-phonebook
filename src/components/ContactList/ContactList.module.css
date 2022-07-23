@@ -1,0 +1,13 @@
+.ul {
+    list-style: none;
+}
+
+.item {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.item:not(:last-child) {
+    margin-bottom: 15px;
+}
