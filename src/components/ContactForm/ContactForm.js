@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import { nanoid } from 'nanoid';
 import s from './ContactForm.module.css';
-import { addContact } from '../../redux/contactsSlice.js';
+import {
+  useAddContactMutation,
+  useGetContactsQuery,
+} from 'services/contactsAPI';
 
 const inputNameId = nanoid();
 const inputPhoneId = nanoid();
 
-export default function ContactForm(props) {
+export default function ContactForm() {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
-
-  const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts.items);
+  const [createContact, { isLoading }] = useAddContactMutation();
+  const { data } = useGetContactsQuery();
 
   const handleCahnge = evt => {
     const { name, value } = evt.currentTarget;
@@ -29,22 +30,13 @@ export default function ContactForm(props) {
   };
 
   const handleSubmit = evt => {
-    const contact = {
-      id: nanoid(),
-      name,
-      number,
-    };
-
     evt.preventDefault();
-
-    if (
-      contacts.find(
-        contact => contact.name.toLowerCase() === name.toLowerCase()
-      )
-    ) {
+    if (data.find(data => data.name.toLowerCase() === name.toLowerCase())) {
       return alert(`${name} is already in Contact List`);
     }
-    dispatch(addContact(contact));
+
+    createContact({ name, number });
+
     setName('');
     setNumber('');
   };
@@ -80,7 +72,9 @@ export default function ContactForm(props) {
           required
         />
       </label>
-      <button type="submit">Add contact</button>
+      <button type="submit" disabled={isLoading}>
+        Add contact
+      </button>
     </form>
   );
 }

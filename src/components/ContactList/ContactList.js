@@ -1,36 +1,38 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { deleteContact } from 'redux/contactsSlice';
+import { useSelector } from 'react-redux';
+import { useDeleteContactMutation } from '../../services/contactsAPI';
 import s from './ContactList.module.css';
+import { useGetContactsQuery } from '../../services/contactsAPI';
 
 export default function ContactList() {
-  const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts.items);
-  const filter = useSelector(state => state.contacts.filter);
+  const filter = useSelector(state => state.filter.value);
+
+  const { data = [], isError, error, isFetching } = useGetContactsQuery();
+  const [handleDelete] = useDeleteContactMutation();
 
   const renderContact = () => {
-    return contacts.filter(contact =>
+    return data.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
     );
   };
 
-  const handleDelete = id => {
-    dispatch(deleteContact(id));
-  };
-
   return (
-    <ul className={s.ul}>
-      {renderContact().map(contact => {
-        return (
-          <li key={contact.id} className={s.item}>
-            <span>{contact.name}:</span>
-            <span>{contact.number}</span>
-            <button type="button" onClick={() => handleDelete(contact.id)}>
-              Delete
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+    <>
+      {isFetching && <p style={{ textAlign: 'center' }}>Загружаем...</p>}
+      {isError && <p>Something went wrone. {error}</p>}
+      <ul className={s.ul}>
+        {renderContact().map(contact => {
+          return (
+            <li key={contact.id} className={s.item}>
+              <span>{contact.name}:</span>
+              <span>{contact.phone}</span>
+              <button type="button" onClick={() => handleDelete(contact.id)}>
+                Delete
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </>
   );
 }
