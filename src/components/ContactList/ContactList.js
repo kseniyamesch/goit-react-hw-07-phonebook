@@ -7,7 +7,7 @@ import { useGetContactsQuery } from '../../services/contactsAPI';
 export default function ContactList() {
   const filter = useSelector(state => state.filter.value);
 
-  const { data = [], isError, error, isFetching } = useGetContactsQuery();
+  const { data = [], isError, error, isFetching, isLoading } = useGetContactsQuery();
   const [handleDelete] = useDeleteContactMutation();
 
   const renderContact = () => {
@@ -26,8 +26,8 @@ export default function ContactList() {
             <li key={contact.id} className={s.item}>
               <span>{contact.name}:</span>
               <span>{contact.phone}</span>
-              <button type="button" onClick={() => handleDelete(contact.id)}>
-                Delete
+              <button type="button" disabled={isLoading} onClick={() => handleDelete(contact.id)}>
+                {isLoading ? 'Deleting..' : 'Delete'}
               </button>
             </li>
           );

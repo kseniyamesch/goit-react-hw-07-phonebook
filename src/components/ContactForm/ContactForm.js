@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import s from './ContactForm.module.css';
 import {
@@ -12,7 +12,7 @@ const inputPhoneId = nanoid();
 export default function ContactForm() {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
-  const [createContact, { isLoading }] = useAddContactMutation();
+  const [createContact, { isLoading, isSuccess }] = useAddContactMutation();
   const { data } = useGetContactsQuery();
 
   const handleCahnge = evt => {
@@ -36,10 +36,14 @@ export default function ContactForm() {
     }
 
     createContact({ name, number });
-
-    setName('');
-    setNumber('');
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setName('');
+      setNumber('');
+    }
+  }, [setName, setNumber, isSuccess])
 
   return (
     <form className={s.form} onSubmit={handleSubmit}>
@@ -73,7 +77,7 @@ export default function ContactForm() {
         />
       </label>
       <button type="submit" disabled={isLoading}>
-        Add contact
+        {isLoading ? 'Adding..' : 'Add contact'}
       </button>
     </form>
   );
